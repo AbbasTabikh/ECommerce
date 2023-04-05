@@ -54,7 +54,8 @@ else
     [Inject]
     public HttpClient Http { get; set; }
 
-    private async Task GetProducts()
+    //site preview
+    private async Task GetSomeProducts()
     {
         _isloading = true;
         var response = await Http.GetFromJsonAsync<List<ProductDto>>("api/products/getsomeproducts");
@@ -70,6 +71,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await GetProducts();
+        await GetSomeProducts();
     }
 }

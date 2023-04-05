@@ -5,12 +5,12 @@
 @using System.Security.Claims;
 @layout SecondaryLayout
 @inject ISnackbar Snackbar
-@attribute [Authorize(Roles ="True,False,ViewUser")]
+@attribute [Authorize]
 
 <div class="d-flex flex-column gap-1" style="position:fixed; bottom:0; right:0; padding:5px; margin:10px; z-index:100;">
 
-    <MudTooltip Arrow="true" Text="View as a client">
-        <MudIconButton OnClick="ViewAsAClient" Icon="@Icons.Material.Filled.RemoveRedEye" Style="border-radius:50%;padding:10px;" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" />
+    <MudTooltip Arrow="true" Text="@_toolTipText">
+        <MudIconButton OnClick="ToggleViewAsClient" Icon="@Icons.Material.Filled.RemoveRedEye" Style="border-radius:50%;padding:10px;" Variant="Variant.Filled" Color="@_bgButtonColor" Size="Size.Large" />
     </MudTooltip>
     <MudIconButton OnClick="ShowSearchField" Icon="@Icons.Material.Filled.Search" Style="border-radius:50%;padding:10px;" Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Large" />
 
@@ -87,6 +87,8 @@ else
     private bool isSearchFieldHidden = true;
     private bool _isloading = false;
 
+    private string _toolTipText = "View as a client";
+    private Color _bgButtonColor = Color.Primary;
 
     [Inject]
     public HttpClient Http { get; set; }
@@ -112,13 +114,12 @@ else
 
         if(response == true )
         {
-            _products!.Remove(product);
             Snackbar.Add("Item was deleted Successfully", Severity.Error);
+            _products!.Remove(product);
         }
         else
         {
             Snackbar.Add("Failed to delete item", Severity.Info);
-            _products!.Add(product);
         }
     }
     private async Task UpdateProduct(ProductDto product)
@@ -175,7 +176,8 @@ else
     {
         isSearchFieldHidden = !isSearchFieldHidden;
     }
-    private async Task ViewAsAClient()
+
+    private async Task ToggleViewAsClient()
     {
         var state = await authenticationState!;
 
@@ -190,20 +192,26 @@ else
 
             if(currentRole!.Value.Contains("ViewUser"))
             {
+                _toolTipText = "View as a client";
+                _bgButtonColor = Color.Primary;
+
                 claimsIdentity.RemoveClaim(currentRole);
                 claimsIdentity.AddClaim(new Claim (ClaimTypes.Role , "True"));
                 customAuthProvider?.UpdateAuthenticationState(claimsIdentity);
+
             }
 
             else
             {
+                _toolTipText = "View as an admin";
+                _bgButtonColor = Color.Default;
+
                 claimsIdentity.RemoveClaim(currentRole);
                 claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, "ViewUser"));
                 customAuthProvider?.UpdateAuthenticationState(claimsIdentity);
             }
         }
     }
-
     protected override async Task OnInitializedAsync()
     {
         _isloading = true;
@@ -216,7 +224,7 @@ else
 
             var role = state.User.FindFirst(ClaimTypes.Role);
 
-            //client
+            //client + ViewUser
             if(role!.Value.Contains("False") || role.Value.Contains("ViewUser"))
             {
                 await GetAvailableProducts();
