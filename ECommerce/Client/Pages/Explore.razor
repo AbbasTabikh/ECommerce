@@ -8,10 +8,13 @@
 @attribute [Authorize]
 
 <div class="d-flex flex-column gap-1" style="position:fixed; bottom:0; right:0; padding:5px; margin:10px; z-index:100;">
+    
+    <AuthorizeView Roles="True,ViewUser">
+        <MudTooltip Arrow="true" Text="@_toolTipText">
+            <MudIconButton OnClick="ToggleViewAsClient" Icon="@Icons.Material.Filled.RemoveRedEye" Style="border-radius:50%;padding:10px;" Variant="Variant.Filled" Color="@_bgButtonColor" Size="Size.Large" />
+        </MudTooltip>
+    </AuthorizeView>
 
-    <MudTooltip Arrow="true" Text="@_toolTipText">
-        <MudIconButton OnClick="ToggleViewAsClient" Icon="@Icons.Material.Filled.RemoveRedEye" Style="border-radius:50%;padding:10px;" Variant="Variant.Filled" Color="@_bgButtonColor" Size="Size.Large" />
-    </MudTooltip>
     <MudIconButton OnClick="ShowSearchField" Icon="@Icons.Material.Filled.Search" Style="border-radius:50%;padding:10px;" Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Large" />
 
 </div>
@@ -61,7 +64,7 @@ else
 </AuthorizeView>
 
 @* User *@
-<AuthorizeView Roles="False,ViewUser">
+<AuthorizeView Roles="False">
     <Authorized>
         <MudPaper Style="height:100vh; width:100%;" Outlined="true" Class="border-hidden pa-4" Elevation="0">
             <div class="row" style="width:100%;height:100vh;">
@@ -80,8 +83,33 @@ else
 </AuthorizeView>
 
 
+<AuthorizeView Roles="ViewUser">
+    <Authorized>
+        <div class="alert alert-warning alert-dismissible text-center" role="alert" style="z-index:9999;">
+          These changes won't affect the actual pieces available, please refresh the browser to see the actual values
+      </div>
+        <MudPaper Style="height:100vh; width:100%;" Outlined="true" Class="border-hidden pa-4" Elevation="0">
+            <div class="row" style="width:100%;height:100vh;">
+                <div class="col d-flex justify-content-center align-items-center flex-wrap gap-3">
+                    @foreach (var product in _products!)
+                    {
+                        if (product.PiecesAvaliable != 0)
+                        {
+                            <ECommerce.Client.Components.ProductCard OnAddToCart="() => ViewUserAddToCart(product)" Product="product"></ECommerce.Client.Components.ProductCard>
+                        }
+                    }
+                </div>
+            </div>
+
+        </MudPaper>
+    </Authorized>
+</AuthorizeView>
+
+
+
 @code {
     private static List<ProductDto>? _products = new List<ProductDto>();
+
     private int uniqueId = 1;
     private string fileInput = string.Empty;
     private bool isSearchFieldHidden = true;
@@ -99,6 +127,7 @@ else
     [Inject]
     public AuthenticationStateProvider? StateProvider { get; set; }
 
+    // Operations Related to the admin + View User
     private async Task GetProducts()
     {
         var response = await Http.GetFromJsonAsync<List<ProductDto>>("api/products/getallproducts");
@@ -136,6 +165,48 @@ else
             Snackbar.Add("Failed to update item", Severity.Error);
         }
     }
+    private async Task ToggleViewAsClient()
+    {
+        var state = await authenticationState!;
+
+        if(state != null)
+        {
+            var user = state.User;
+            var currentRole = user.FindFirst(ClaimTypes.Role);
+
+            //claims identity => claims related to this identity(user can have multiple identities)
+            var claimsIdentity = (ClaimsIdentity) user?.Identity!;
+            var customAuthProvider = (CustomAuthenticationStateProvider?) StateProvider;
+
+            //you have a  userView role and you clicked
+            if(currentRole!.Value.Contains("ViewUser"))
+            {
+                _toolTipText = "View as a client";
+                _bgButtonColor = Color.Primary;
+
+                claimsIdentity.RemoveClaim(currentRole);
+                claimsIdentity.AddClaim(new Claim (ClaimTypes.Role , "True"));
+                customAuthProvider?.UpdateAuthenticationState(claimsIdentity);
+            }
+
+            //you have admin role and you clicked
+            else
+            {
+                _toolTipText = "View as an admin";
+                _bgButtonColor = Color.Default;
+
+                claimsIdentity.RemoveClaim(currentRole);
+                claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, "ViewUser"));
+                customAuthProvider?.UpdateAuthenticationState(claimsIdentity);
+            }
+        }
+    }
+    public void ViewUserAddToCart(ProductDto product)
+    {
+        product.PiecesAvaliable--;
+    }
+
+    // Operations related to admin + View User + Client
     private async Task SearchProducts(string searchText)
     {
         if(!string.IsNullOrEmpty(searchText) || !string.IsNullOrWhiteSpace(searchText))
@@ -153,6 +224,8 @@ else
         }
 
     }
+
+    // Operations related to Client
     private async Task AddToCart(ProductDto product)
     {
         var response = await Http.PostAsJsonAsync($"api/clients/addtoCart", product);
@@ -172,46 +245,15 @@ else
             _products = availableProducts;
         }
     }
+
+
     private void ShowSearchField()
     {
         isSearchFieldHidden = !isSearchFieldHidden;
-    }
+    } 
 
-    private async Task ToggleViewAsClient()
-    {
-        var state = await authenticationState!;
 
-        if(state != null)
-        {
-            var user = state.User;
-            var currentRole = user.FindFirst(ClaimTypes.Role);
 
-            //claims identity => claims related to this identity(user can have multiple identities)
-            var claimsIdentity = (ClaimsIdentity) user?.Identity!;
-            var customAuthProvider = (CustomAuthenticationStateProvider?) StateProvider;
-
-            if(currentRole!.Value.Contains("ViewUser"))
-            {
-                _toolTipText = "View as a client";
-                _bgButtonColor = Color.Primary;
-
-                claimsIdentity.RemoveClaim(currentRole);
-                claimsIdentity.AddClaim(new Claim (ClaimTypes.Role , "True"));
-                customAuthProvider?.UpdateAuthenticationState(claimsIdentity);
-
-            }
-
-            else
-            {
-                _toolTipText = "View as an admin";
-                _bgButtonColor = Color.Default;
-
-                claimsIdentity.RemoveClaim(currentRole);
-                claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, "ViewUser"));
-                customAuthProvider?.UpdateAuthenticationState(claimsIdentity);
-            }
-        }
-    }
     protected override async Task OnInitializedAsync()
     {
         _isloading = true;
@@ -220,17 +262,15 @@ else
 
         if(state != null)
         {
-
-
             var role = state.User.FindFirst(ClaimTypes.Role);
 
-            //client + ViewUser
-            if(role!.Value.Contains("False") || role.Value.Contains("ViewUser"))
+            //client
+            if(role!.Value.Contains("False"))
             {
                 await GetAvailableProducts();
             }
 
-            //admin
+            //admin + ViewUser
             else
             {
                 await GetProducts();
@@ -239,6 +279,8 @@ else
 
         _isloading = false;
     }
+
+    
 
 
 }
