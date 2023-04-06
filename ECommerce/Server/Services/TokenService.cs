@@ -41,48 +41,5 @@ namespace ECommerce.Server.Services
             return jwtToken;
         }
 
-
-        public string GetViewUserToken(Models.Client client)
-        {
-            List <Claim>  viewUserClaims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name , client.Username),
-                new Claim(ClaimTypes.Role , "ViewUser")
-            };
-
-            string jwtKey = _configuration.GetSection("JwtKey:SecretKey").Value!;
-            var secretKeyBytes = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-            var cred = new SigningCredentials(secretKeyBytes, SecurityAlgorithms.HmacSha512Signature);
-
-            var jwtSecurityToken = new JwtSecurityToken(claims: viewUserClaims, expires: DateTime.Now.AddDays(1), signingCredentials: cred);
-
-            var jwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-
-            return jwtToken;
-
-        }
-
-        public string GetAdminToken(Models.Client client)
-        {
-            List<Claim> viewUserClaims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name , client.Username),
-                new Claim(ClaimTypes.Role , "True")
-            };
-
-            string jwtKey = _configuration.GetSection("JwtKey:SecretKey").Value!;
-            var secretKeyBytes = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-            var cred = new SigningCredentials(secretKeyBytes, SecurityAlgorithms.HmacSha512Signature);
-
-            var jwtSecurityToken = new JwtSecurityToken(claims: viewUserClaims, expires: DateTime.Now.AddDays(1), signingCredentials: cred);
-
-            var jwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-
-            return jwtToken;
-
-        }
-
-
-
     }
 }
