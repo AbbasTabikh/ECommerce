@@ -28,15 +28,10 @@ namespace ECommerce.Server.Services
         {
             return await _dataContext.Clients.ToListAsync();
         }
-
-
         public Task<HashSet<string>> GetUsernames()
         {
             return Task.FromResult(_dataContext.Clients.Select(c => c.Username).ToHashSet());
-        }
-
-
-        
+        }        
         public async Task<Models.Client?> AddClientAsync(SharedClientModel loginClient)
         {
             PasswordManager passwordObject = PasswordManager.CreatePassowrdObject(loginClient.Password);
@@ -57,7 +52,6 @@ namespace ECommerce.Server.Services
 
             return null;
         }
-
         public async Task<Models.Client?> GetClientAsync(SharedClientModel client)
         {
             //find the username(username is unique)
@@ -74,8 +68,6 @@ namespace ECommerce.Server.Services
             return null;
 
         }
-
-
         public async Task<bool> AddProductToClientAsync(ProductDto product)
         {
 
@@ -116,7 +108,6 @@ namespace ECommerce.Server.Services
 
             return await _dataContext.SaveChangesAsync() > 0 && affected > 0;
         }
-
         public async Task<List<OwnedProductModel?>?> GetCurrentClientProductsAsync()
         {
             //get user from the http context

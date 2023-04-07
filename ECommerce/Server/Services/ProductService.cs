@@ -32,26 +32,28 @@ namespace ECommerce.Server.Services
             return null;
 
         }
-
         public async Task<bool> DeleteProductAsync(int id)
         {
-            Product product = new Product
+            var product = await _context.Products.FindAsync(id);
+
+            if (product == null)
             {
-                Id = id
-            };
+                // product with the given id not found
+                return false;
+            }
+
+            //_context.Entry(product).State = EntityState.Deleted;
             var result = _context.Products.Remove(product);
 
             return await _context.SaveChangesAsync() > 0;
 
         }
-
         public async Task<List<Product>> GetAllProductsAsync()
         {
             var products =  await _context.Products.ToListAsync();
             return products;
 
         }
-
         public async Task<List<ProductDto>> SearchProducts(string searchValue)
         {
             searchValue = searchValue.ToLower();
@@ -69,16 +71,12 @@ namespace ECommerce.Server.Services
 
             return productDtos;
         }
-
         public async Task<bool> UpdateProductAsync(ProductDto productDto)
         {
             Product product = _mapper.Map<Product>(productDto);
             _context.Update(product);
             return await _context.SaveChangesAsync() > 0;
         }
-
-
-
 
         /// <summary>
         /// This function takes a list of products and return the Products that failed to be Added
@@ -117,7 +115,6 @@ namespace ECommerce.Server.Services
             return failedTobeAdded;
 
         }
-
         public async Task<List<ProductDto>> GetAvailableProductsAsync()
         {
             var products =  await _context.Products
@@ -133,7 +130,6 @@ namespace ECommerce.Server.Services
 
             return productDtos;
         }
-
         public async Task<List<ProductDto>> GetSomeProductsAsync()
         {
             var someProducts = await _context.Products.Take(25).Where(p => p.PiecesAvaliable > 0).ToListAsync();

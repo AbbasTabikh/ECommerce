@@ -7,24 +7,15 @@
 @inject ISnackbar Snackbar
 @attribute [Authorize]
 
-<div class="d-flex flex-column gap-1" style="position:fixed; bottom:0; right:0; padding:5px; margin:10px; z-index:100;">
-    
-    <AuthorizeView Roles="True,ViewUser">
-        <MudTooltip Arrow="true" Text="@_toolTipText">
-            <MudIconButton OnClick="ToggleViewAsClient" Icon="@Icons.Material.Filled.RemoveRedEye" Style="border-radius:50%;padding:10px;" Variant="Variant.Filled" Color="@_bgButtonColor" Size="Size.Large" />
-        </MudTooltip>
-    </AuthorizeView>
 
-    <MudIconButton OnClick="ShowSearchField" Icon="@Icons.Material.Filled.Search" Style="border-radius:50%;padding:10px;" Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Large" />
-
-</div>
 
 @if(_isloading)
 {
+
+    <MudOverlay Visible="true" Style="width:100%; height:100%;"  LightBackground="true" ZIndex="9999" AutoClose="true"></MudOverlay>
         <div class="container position-absolute top-50 bottom-50" style="left:25%;right:25%;">
             <ECommerce.Client.Components.MainLoader />
         </div>
-
 }
 else
 {
@@ -41,14 +32,14 @@ else
 }
 
 <div class="container" hidden="@isSearchFieldHidden">
-    <ECommerce.Client.Components.SearchBox OnSearch="SearchProducts" Style="color:white; position:fixed; width:40%;bottom:14px;right:15px; padding:12px;z-index:99;border-radius:40px"></ECommerce.Client.Components.SearchBox>
+    <ECommerce.Client.Components.SearchBox  OnSearch="SearchProducts" Style="color:white; position:fixed; width:40%;bottom:14px;right:15px; padding:12px;z-index:99;border-radius:40px"></ECommerce.Client.Components.SearchBox>
 </div>
 
 
 @* Admin *@
 <AuthorizeView Roles="True">
     <Authorized>
-        <MudPaper Style="height:100vh; width:100%;" Outlined="true" Class="border-hidden pa-4" Elevation="0">
+        <MudPaper Style="height:100vh; width:100%;" Outlined="true" Class="border-hidden pa-4 bg-light" Elevation="0">
          <div class="row" style="width:100%;height:100vh;">
             <div class="col d-flex justify-content-center align-items-center flex-wrap gap-3">     
                     @foreach (var product in _products!)
@@ -82,10 +73,10 @@ else
     </Authorized>
 </AuthorizeView>
 
-
+@*View User*@
 <AuthorizeView Roles="ViewUser">
     <Authorized>
-        <div class="alert alert-warning alert-dismissible text-center" role="alert" style="z-index:9999;">
+        <div class="alert alert-warning alert-dismissible text-center position-fixed w-100" role="alert" style="z-index:9999;">
           These changes won't affect the actual pieces available, please refresh the browser to see the actual values
       </div>
         <MudPaper Style="height:100vh; width:100%;" Outlined="true" Class="border-hidden pa-4" Elevation="0">
@@ -106,6 +97,18 @@ else
 </AuthorizeView>
 
 
+<div class="d-flex flex-column gap-1" style="position:fixed; bottom:0; right:0; padding:5px; margin:10px; z-index:100;">
+
+    <AuthorizeView Roles="True,ViewUser">
+        <MudTooltip Arrow="true" Text="@_toolTipText">
+            <MudIconButton OnClick="ToggleViewAsClient" Icon="@Icons.Material.Filled.RemoveRedEye" Style="border-radius:50%;padding:10px;" Variant="Variant.Filled" Color="@_bgButtonColor" Size="Size.Large" />
+        </MudTooltip>
+    </AuthorizeView>
+
+    <MudIconButton OnClick="ShowSearchField" Icon="@Icons.Material.Filled.Search" Style="border-radius:50%;padding:10px;" Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Large" />
+
+</div>
+
 
 @code {
     private static List<ProductDto>? _products = new List<ProductDto>();
@@ -115,11 +118,12 @@ else
     private bool isSearchFieldHidden = true;
     private bool _isloading = false;
 
+
     private string _toolTipText = "View as a client";
     private Color _bgButtonColor = Color.Primary;
 
     [Inject]
-    public HttpClient Http { get; set; }
+    public HttpClient Http { get; set; } 
 
     [CascadingParameter]
     public Task<AuthenticationState>? authenticationState { get; set; }
@@ -139,6 +143,8 @@ else
     }
     private async Task RemoveProduct(ProductDto product)
     {
+
+
         var response = await Http.DeleteFromJsonAsync<bool>($"api/products/deleteproduct/{product.Id}");
 
         if(response == true )

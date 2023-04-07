@@ -1,4 +1,4 @@
-﻿<InputText style="@Style" type="text" placeholder="Search Product"  @bind-Value="@searchText" class="input-with-icon form-control bg-dark search-box"  @oninput="@(e => Search(e?.Value?.ToString()))"  />
+﻿<InputText style="@Style" type="text" placeholder="Search Product"  @bind-Value="@searchText" class="tranisition-show input-with-icon form-control bg-dark search-box"  @oninput="@(e => Search(e?.Value?.ToString()))"  />
 
 
 @code {
@@ -9,6 +9,7 @@
 
     [Parameter]
     public string Style { get; set; } = string.Empty;
+
 
     private async Task Search(string? value)
     {

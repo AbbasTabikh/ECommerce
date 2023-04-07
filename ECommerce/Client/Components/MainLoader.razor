@@ -1,6 +1,10 @@
 ﻿
 
-<div class="loader"></div>
+<div class="loader">
+    <div class="container loader-text text-center">
+        <MudText Align="Align.Center" Typo="Typo.caption" Color="Color.Dark">Loading...</MudText>
+    </div>
+</div>
 
 
 <style>
@@ -12,8 +16,14 @@
  border-radius: 30px;
  background-color: rgba(0,0,0,0.2);
  position: relative;
-}
+ z-index:10000;
+  }
 
+  .loader-text
+  {
+      z-index:10000;
+
+  }
 .loader::before {
  content: "";
  position: absolute;

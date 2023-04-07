@@ -57,14 +57,16 @@
     {
         _products.Remove(product);
     }
+
     private async Task AddProduct(ProductDto Product)
     {
+
         var response = await Http.PostAsJsonAsync<ProductDto>("api/products/addproduct", Product);
 
         if (response.IsSuccessStatusCode)
         {
-            var responseContent = response.Content.ReadFromJsonAsync<ProductDto>();
             _products.Remove(Product);
+            //var responseContent = await response.Content.ReadFromJsonAsync<ProductDto>();
             Snackbar.Add("Product Has been successfully Added!", Severity.Success);
         }
         else
