@@ -1,5 +1,6 @@
 using ECommerce.Server.Data;
 using ECommerce.Server.Services;
+using ECommerce.Server.Services.EmailService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,9 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IClientService , ClientService>();
 builder.Services.AddScoped<ITokenService , TokenService>();
 builder.Services.AddScoped<IProductService , ProductService>();
+builder.Services.AddSingleton(builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>()!);
+builder.Services.AddScoped<IMailService , MailService>();
+
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();

@@ -5,6 +5,52 @@
 <PageTitle>Index</PageTitle>
 
 
+
+<style>
+
+    .underlined-word{
+        position:relative;
+    }
+    .underlined-word::after{
+        position: absolute;
+        content: '';
+        height: 3px;
+        bottom: -10px;
+
+        margin: 0 auto;
+        left: 0;
+        right: 0;
+        width: 50px;
+        background: #594ae2;
+        -o-transition: .5s;
+        -moz-transition: .5s;
+        -webkit-transition: .5s;
+        transition: .5s;
+    }
+
+    .card-title-text{
+        color:#777777;
+    }
+
+    .info-box{
+        padding: 20px 0 30px 0;
+        box-shadow: 0 0 30px rgba(214, 215, 216, 0.6);
+    }
+
+    .email-form{
+        box-shadow: 0 0 30px rgba(214, 215, 216, 0.6);
+        padding: 30px;
+        background: #fff
+    }
+
+    #contactus{
+        padding-top:25px;
+        padding-bottom:25px;
+    }
+</style>
+
+
+
 @if (_isloading)
 {
     <div class="container position-absolute top-50 bottom-50" style="left:25%;right:25%">
@@ -25,31 +71,89 @@ else
             </div>
         </MudPaper>
     }
+
+
+
+    <section id="card-preview">
+    <div class="d-flex flex-wrap align-items-center justify-content-center d-block">
+        <MudPaper Style="height:100%; width:100%;" Outlined="true" Class="border-hidden pa-4" Elevation="0">
+            <div class="row" style="width:100%;height:100%;">
+                <div class="col d-flex justify-content-center align-items-center flex-wrap gap-3">
+                    @foreach (var product in _products!)
+                    {
+                        if (product.PiecesAvaliable != 0)
+                        {
+                            <ECommerce.Client.Components.ProductCard Product="product"></ECommerce.Client.Components.ProductCard>
+                        }
+                    }
+                </div>
+            </div>
+        </MudPaper>
+    </div>
+    </section>
+
+
+    <section id="contactus" class="w-100" style="display:block;background-color:#f6f8fb;padding:60px 0;">
+        <MudText Align="Align.Center" Typo="Typo.h4" Style="font-weight:bold;color:#6a778d" Class="underlined-word">Contact</MudText>
+        <p class="mt-5" style="font-size:larger">If you need to contact us, please feel free to reach out via our website's contact form or email. We are committed to responding promptly and addressing any questions, 
+            concerns, or feedback you may have. Thank you for considering contacting us.</p>
+        <div class="container mt-2">
+            <div class="row">
+
+                @* Cards *@
+                <div class="col-lg-6 mb-md-3 mb-sm-3 mb-3">
+
+                    <div class="row">
+                        <div class="text-center bg-white info-box">
+                            <MudIcon Icon="@Icons.Material.Filled.MyLocation" Color="Color.Primary"></MudIcon>
+                            <h6 class="card-title-text">Our Address</h6>
+                            <p>A108 Adam Street, China , hong kong 535022</p>
+                        </div>
+                    </div>
+
+                    <div class="row  mt-2">
+
+                        <div class="col" style="padding-left:5px;padding-right:5px;">
+                            <div class="text-center bg-white info-box">
+                                <MudIcon Icon="@Icons.Material.Filled.Email"  Color="Color.Primary"></MudIcon>
+                                <h6 class="card-title-text p-2">Our Address</h6>
+                                <p>A108 Adam Street, China , hong kong 535022</p>
+                            </div>
+                        </div>
+
+                        <div class="col" style="padding-left:5px;padding-right:5px;">
+                            <div class="text-center bg-white info-box">
+                                <MudIcon Icon="@Icons.Material.Filled.Phone"  Color="Color.Primary"></MudIcon>
+                                <h6 class="card-title-text p-2">Our Address</h6>
+                                <p>A108 Adam Street, China , hong kong 535022</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                @*Form*@
+                <div class="col-lg-6">
+                    <ECommerce.Client.Components.ContactUsForm UserEmail="userEmail"></ECommerce.Client.Components.ContactUsForm>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
 }
 
 
 
-<div class="d-flex flex-wrap align-items-center justify-content-center">
-    <MudPaper Style="height:100vh; width:100%;" Outlined="true" Class="border-hidden pa-4" Elevation="0">
-        <div class="row" style="width:100%;height:100vh;">
-            <div class="col d-flex justify-content-center align-items-center flex-wrap gap-3">
-                @foreach (var product in _products!)
-                {
-                    if (product.PiecesAvaliable != 0)
-                    {
-                        <ECommerce.Client.Components.ProductCard  Product="product"></ECommerce.Client.Components.ProductCard>
-                    }
-                }
-            </div>
-        </div>
-    </MudPaper>
-</div>
 
 
 @code{
     private List<ProductDto> _products = new List<ProductDto>();
     private bool _isloading = false;
 
+
+    private UserMail userEmail = new UserMail();
 
     [Inject]
     public HttpClient Http { get; set; }
@@ -73,4 +177,5 @@ else
     {
         await GetSomeProducts();
     }
+
 }

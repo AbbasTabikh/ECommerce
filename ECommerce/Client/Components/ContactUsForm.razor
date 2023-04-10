@@ -1,0 +1,83 @@
+﻿@using ECommerce.Shared.Models;
+
+
+<EditForm Model="UserEmail" OnValidSubmit="SendMail" class="email-form">
+    <DataAnnotationsValidator/>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <InputText class="form-control mt-2 shadow-none" @bind-Value="UserEmail.Name" placeholder="Name"></InputText>
+            <ValidationMessage For="() => UserEmail.Name"></ValidationMessage>
+        </div>
+
+        <div class="form-group col-md-6">
+            <InputText class="form-control mt-2 shadow-none" @bind-Value="UserEmail.Email" placeholder="Email"></InputText>
+            <ValidationMessage For="() => UserEmail.Email"></ValidationMessage>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <InputText class="form-control mt-2 shadow-none" @bind-Value="UserEmail.Subject" placeholder="Subject"></InputText>
+            <ValidationMessage For="() => UserEmail.Subject"></ValidationMessage>
+
+            <InputTextArea class="form-control mt-2 shadow-none" @bind-Value="UserEmail.Message" placeholder="Message" rows="4"></InputTextArea>
+            <ValidationMessage For="() => UserEmail.Message"></ValidationMessage>
+
+        </div>
+    </div>
+    <div class="d-flex align-items-center justify-content-center mt-2">
+        <button type="submit" class="btn btn-primary shadow-none">
+            @if(_isSending)
+            {
+                <span>Sending message...</span>
+            }
+           else
+            {
+                <span>send message</span>
+            }
+            </button>
+    </div>
+</EditForm>
+@code {
+    [Parameter]
+    public UserMail UserEmail { get; set; } = new UserMail();
+
+    [Inject]
+    public HttpClient Http { get; set; }
+
+    [Inject]
+    public ISnackbar? Snackbar { get; set; }
+
+    private bool _disabled = false;
+    private bool _isSending = false;
+
+    private async Task SendMail()
+    {
+        _disabled = true;
+        _isSending = true;
+        var response = await Http.PostAsJsonAsync($"api/emails/sendmail", UserEmail);
+
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar?.Add("Email was sent successfully, out team will try to contact you as soon as possble!", Severity.Info);
+            ClearInput();
+
+        }
+        else
+        {
+            Snackbar?.Add("Failed to send email , please try again later",Severity.Error);
+        }
+        _isSending = false;
+        _disabled = false;
+    }
+
+    private void ClearInput()
+    {
+        UserEmail.Subject = string.Empty;
+        UserEmail.Name = string.Empty;
+        UserEmail.Message = string.Empty;
+        UserEmail.Email = string.Empty;
+        StateHasChanged();
+    }
+}
