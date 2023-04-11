@@ -1,0 +1,54 @@
+﻿@inherits LayoutComponentBase
+
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+
+    <MudAppBar Elevation="1" Style="background-color:white;box-shadow: 0 0 11px rgba(33,33,33,.2);padding:3px 0 3px 10px;">
+
+
+        <div class="container d-flex gap-1">
+            <MudText Typo="Typo.h4" Style="font-weight:bold;color:#6a778d">
+                S<MudAvatar Color="Color.Primary">U</MudAvatar>KA
+            </MudText>
+        </div>
+
+        <MudSpacer />
+
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Dark" Edge="Edge.End" OnClick="@ToggleDrawer" />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="@open" Anchor="MudBlazor.Anchor.Right" Breakpoint="@breakpoint" Elevation="1" Variant="@DrawerVariant.Temporary" PreserveOpenState="@preserveOpenState">
+
+        <MudDrawerHeader Class="d-flex justify-content-center align-items-center">
+            <MudText Typo="Typo.h6" Class="text-center">Your Lab<MudIcon Icon="@Icons.Material.Filled.EmojiEmotions" Color="Color.Tertiary"></MudIcon> </MudText>
+        </MudDrawerHeader>
+
+        <NavMenuLinks />
+
+    </MudDrawer>
+
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+
+</MudLayout>
+
+<style>
+
+</style>
+
+
+@code {
+    bool open = false;
+    bool preserveOpenState = false;
+    Breakpoint breakpoint = Breakpoint.Lg;
+
+    void ToggleDrawer()
+    {
+        open = !open;
+    }
+}

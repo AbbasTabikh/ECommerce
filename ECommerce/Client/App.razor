@@ -2,11 +2,13 @@
 <CascadingAuthenticationState>
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" >
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(NotAuthorizedLayout)" >
             <NotAuthorized> 
-                <div class="container d-flex align-items-center justify-content-center">
-                    <img src="/images/notAuth.png" style="width:100%;height:100%; object-fit:cover">
-                </div>
+                    <a class="btn btn-primary" href="/">Go home</a>
+                    <div class="container d-flex align-items-center justify-content-center">
+                        <img src="/images/notAuth.png" style="width:50%;height:50%; object-fit:cover">
+                    </div>
+
             </NotAuthorized>
         </AuthorizeRouteView>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
