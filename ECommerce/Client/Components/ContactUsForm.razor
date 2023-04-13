@@ -1,6 +1,14 @@
 ﻿@using ECommerce.Shared.Models;
 
 
+<style>
+    .email-form {
+        box-shadow: 0 0 30px rgba(214, 215, 216, 0.6);
+        padding: 30px;
+        background: #fff
+    }
+</style>
+
 <EditForm Model="UserEmail" OnValidSubmit="SendMail" class="email-form">
     <DataAnnotationsValidator/>
     <div class="row">

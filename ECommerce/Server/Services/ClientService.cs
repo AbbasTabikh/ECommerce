@@ -3,12 +3,14 @@ using ECommerce.Server.Data;
 using ECommerce.Server.Helpers;
 using ECommerce.Server.Models;
 using ECommerce.Shared.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Security.Claims;
 
 namespace ECommerce.Server.Services
 {
+
     public class ClientService : IClientService
     {
 
@@ -102,8 +104,10 @@ namespace ECommerce.Server.Services
             }
 
             //update the product (update the pieces available only , can use Attach() too)
-          var affected = await _dataContext.Products.Where(p => p.Id == product.Id).ExecuteUpdateAsync(
-                o => o.SetProperty(p => p.PiecesAvaliable , p => p.PiecesAvaliable - 1));
+          var affected = await _dataContext.Products
+                                                    .Where(p => p.Id == product.Id)
+                                                    .ExecuteUpdateAsync(o => o
+                                                                             .SetProperty(p => p.PiecesAvaliable , p => p.PiecesAvaliable - 1));
 
 
             return await _dataContext.SaveChangesAsync() > 0 && affected > 0;
@@ -126,6 +130,27 @@ namespace ECommerce.Server.Services
 
 
             return products;
+        }
+
+        public async Task<bool> UpdatePasswordAsync(PasswordResource passwordResource)
+        {
+            int clientId = int.Parse(_contextAccessor?.HttpContext?.User.FindFirstValue(claimType: ClaimTypes.NameIdentifier)!);
+
+            var client = await _dataContext.Clients.FindAsync(clientId);
+
+            if(client == null)
+            {
+                return false;
+            }
+
+            var PasswordObject = PasswordManager.CreatePassowrdObject(passwordResource.Password);
+
+            var affected = await _dataContext.Clients
+                                             .Where(c => c.Id == clientId)
+                                             .ExecuteUpdateAsync(c => c
+                                                                     .SetProperty(c => c.PasswordHash, PasswordObject.HashedPassword)
+                                                                     .SetProperty(c => c.PasswordSalt, PasswordObject.PasswordSalt));
+            return affected > 0;
         }
     }
 }

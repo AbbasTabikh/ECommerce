@@ -7,6 +7,7 @@ namespace ECommerce.Server.Mapper
     {
         public AutoMapperDefaultProfile()
         {
+            CreateMap<ECommerce.Server.Models.Client , PasswordResource>();
             CreateMap<SharedClientModel, Models.Client>();
             CreateMap<ProductDto, Models.Product>();
             CreateMap<Models.Product, ProductDto>();

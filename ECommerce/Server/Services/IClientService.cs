@@ -10,5 +10,7 @@ namespace ECommerce.Server.Services
         //the client id can be taken from the http Context accessor
         Task<List<OwnedProductModel?>?> GetCurrentClientProductsAsync();
         Task<bool> AddProductToClientAsync(ProductDto product);
+
+        Task<bool> UpdatePasswordAsync(PasswordResource password);
     }
 }

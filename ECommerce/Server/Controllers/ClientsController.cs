@@ -45,5 +45,15 @@ namespace ECommerce.Server.Controllers
 
             return BadRequest("Failed to perfrom operation");
         }
+
+
+        [HttpPost("updatepassword")]
+        [Authorize]
+        public async Task<IActionResult> UpdatePassword(PasswordResource passwordResource)
+        {
+            var success = await _clientService.UpdatePasswordAsync(passwordResource);
+
+            return success ? Ok() : BadRequest();
+        }
     }
 }
