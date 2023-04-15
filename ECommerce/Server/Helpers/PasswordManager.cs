@@ -9,7 +9,7 @@ namespace ECommerce.Server.Helpers
         public byte[]? PasswordSalt { get; private set; }
         public byte[]? HashedPassword { get; private set; }
 
-        //changes on master
+        //changes on branch
 
         public static PasswordManager CreatePassowrdObject(string password)
         {
