@@ -111,7 +111,7 @@ else
 
 
 @code {
-    private static List<ProductDto>? _products = new List<ProductDto>();
+    private static ICollection<ProductDto>? _products = new LinkedList<ProductDto>();
 
     private int uniqueId = 1;
     private string fileInput = string.Empty;
